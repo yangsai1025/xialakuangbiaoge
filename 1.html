@@ -1,0 +1,50 @@
+//1.下拉框
+1.在RecoveryTable
+<Select
+        id="data_recovery_select_name"
+        style={{marginRight: '10px'}}
+        className='dataRecovery_select_category_name'
+        selectStyle={{borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}
+        iconStyle={{right: '-1px', height: '22px', margin: '5px 0px', borderRight: '1px solid #cccccc'}}
+        options={selectNameOptions}
+        selectedIndex={nameSelectIndex} 
+        onChange={this.handleSelectNameChange} />
+分析:1.在RecoveryTable中render中定义const selectNameOptions = [];   
+2.定义  const tSelectNameOptions = nameSelectData.options;
+3.使用tSelectNameOptions给selectNameOptions赋值,赋的值是nameSelectData
+    tSelectNameOptions.map((item, index) => {
+        selectNameOptions.push({
+        text: i18n[item.text],
+        value: item.value
+        });
+        if (item.select) {
+        nameSelectValue = item.value;
+        nameSelectIndex = index;
+        }
+    });  
+4.在reducer中nameSelectData定义了,,就是action和reduce跑了一遍的更新后的值
+    nameSelectData: combineReducers({
+        options: updateNameOptions,
+        value: updateNameValue
+    }),
+5.疑问?那是在哪里出发更新的?
+6.在main.js初始化中调用了一个方法store.dispatch(restoreDatas());
+7.这个方法在actions中定义了,在这个方法中,触发了
+    const nameOptions = currentApp['resize']['nameOptions'];
+    dispatch(updateNameOptions(nameOptions));
+    nameOptions就是更新的值,就是前面的 nameSelectData
+8.而 currentApp['resize']['nameOptions'];在config中定义了一个currentApp,下面的resize
+中 nameOptions:SelectNameOptions,
+9.SelectNameOptions就是我们在RecoveryTable中定义的死值
+
+//2.表格数据
+1.在actions中定了了方法restoreDatas()触发了表格更新
+    const datas = currentApp['resize']['datas'];
+    dispatch(updateTableDatas(datas));
+2.这个方法在main.js中被用了store.dispatch(restoreDatas());,初始化
+3.在config中currentApp['resize']['datas']中定义了datas为空
+
+
+4.在actions中的数据恢复列表中 getDataRecoveryList(query) 请求了url,得到datas,重新触发
+dispatch(updateTableDatas(datas));出现表格
+5.在main.js中调用了store.dispatch(getDataRecoveryList(query));初始化
